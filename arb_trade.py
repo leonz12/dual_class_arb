@@ -12,6 +12,7 @@ class ArbTrade:
         self._stock = stock
         self._trade = trade
         self._active = False
+        self._open = None
     
     @property
     def stock(self):
@@ -36,13 +37,11 @@ class ArbTrade:
     @property
     def isclosed(self):
         return self._isclosed
-    
-    @property
+
     def open(self):
         return self._open
     
-    @open.setter
-    def open(self, price : Decimal):
+    def open(self, price : float):
         self._open = price
     
     @property
@@ -110,7 +109,7 @@ class ArbTrade:
 
     def base_margin(self):
         if self.isopen or self.isclosed:    
-            return abs((self.open) * self.qty)
+            return abs((self._open) * self.qty)
         else:
             return None
     
@@ -123,16 +122,16 @@ class ArbTrade:
     def profit(self):
         if self.isclosed:
             if self.trade == 'long':
-                return (self.close - self.open) * self.qty
+                return (self._close - self._open) * self.qty
             elif self.trade == 'short':
-                return (self.open - self.close) * self.qty
+                return (self._open - self._close) * self.qty
             else:
                 return None
         elif self.isopen:
             if self.trade == 'long':
-                return (self.stock.last - self.open) * self.qty
+                return (self.stock._last - self._open) * self.qty
             if self.trade == 'short':
-                return (self.open - self.stock.last) * self.qty
+                return (self._open - self.stock._last) * self.qty
             else:
                 return None
         else:

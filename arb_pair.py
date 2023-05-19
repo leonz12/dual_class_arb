@@ -7,8 +7,8 @@ from arb_trade import ArbTrade
 import ib_insync as ib
 from arb_pair import ArbTrade
 
-LOWER = -0.1
-UPPER = 0.1
+LOWER = -0.2
+UPPER = 0.2
 
 class ArbPair:
 
