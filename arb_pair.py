@@ -171,35 +171,31 @@ class ArbPair:
         
         print('Index:', self.index(), 'Direction:', self._direction, 'Open:', self.check_open())
         
-        if self.index() < LOWER:
-            if not self.check_open():
-                self._direction = 'reverse'
-                self._short = ArbTrade(self._api, self._stock1, 'short', self._lot)
-                self._short.open_trade()
-                self._long = ArbTrade(self._api, self._stock2, 'long', self._lot)
-                self._long.open_trade()
-                # self._isopen = True
+        if self.index() < LOWER and not self.check_open():
+            self._direction = 'reverse'
+            self._short = ArbTrade(self._api, self._stock1, 'short', self._lot)
+            self._short.open_trade()
+            self._long = ArbTrade(self._api, self._stock2, 'long', self._lot)
+            self._long.open_trade()
+            # self._isopen = True
 
-        elif self.index() > UPPER:
-            if not self.check_open():
-                self._direction = 'forwrad'
-                self._long = ArbTrade(self._api, self._stock1, 'long', self._lot)
-                self._long.open_trade()
-                self._short = ArbTrade(self._api, self._stock2, 'short', self._lot)
-                self._short.open_trade()
-                # self._isopen = True
+        elif self.index() > UPPER and not self.check_open():
+            self._direction = 'forwrad'
+            self._long = ArbTrade(self._api, self._stock1, 'long', self._lot)
+            self._long.open_trade()
+            self._short = ArbTrade(self._api, self._stock2, 'short', self._lot)
+            self._short.open_trade()
+            # self._isopen = True
 
-        elif self.index() < 0.02 and self._direction == 'forward':
-            if self.check_open():
-                self._long.close_trade()
-                self._short.close_trade()
-                # self._isopen = False
+        elif self.index() < 0.02 and self._direction == 'forward' and self.check_open():
+            self._long.close_trade()
+            self._short.close_trade()
+            # self._isopen = False
         
-        elif self.index() > -0.02 and self._direction == 'reverse':
-            if self.check_open():
-                self._long.close_trade()
-                self._short.close_trade()
-                # self._isopen = False
+        elif self.index() > -0.02 and self._direction == 'reverse' and self.check_open():
+            self._long.close_trade()
+            self._short.close_trade()
+            # self._isopen = False
 
     
         
