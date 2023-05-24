@@ -178,7 +178,7 @@ class ArbPair:
                 self._short.open_trade()
                 self._long = ArbTrade(self._api, self._stock2, 'long', self._lot)
                 self._long.open_trade()
-                self._isopen = True
+                # self._isopen = True
 
         elif self.index() > UPPER:
             if not self.check_open():
@@ -187,19 +187,19 @@ class ArbPair:
                 self._long.open_trade()
                 self._short = ArbTrade(self._api, self._stock2, 'short', self._lot)
                 self._short.open_trade()
-                self._isopen = True
+                # self._isopen = True
 
         elif self.index() < 0.02 and self._direction == 'forward':
             if self.check_open():
                 self._long.close_trade()
                 self._short.close_trade()
-                self._isopen = False
+                # self._isopen = False
         
         elif self.index() > -0.02 and self._direction == 'reverse':
             if self.check_open():
                 self._long.close_trade()
                 self._short.close_trade()
-                self._isopen = False
+                # self._isopen = False
 
     
         
