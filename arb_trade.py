@@ -13,6 +13,9 @@ class ArbTrade:
         self._trade = trade
         self._active = False
         self._open = None
+
+        if qty != 0:
+            self._isopen = True
     
     @property
     def stock(self):
@@ -38,9 +41,11 @@ class ArbTrade:
     def isclosed(self):
         return self._isclosed
 
+    @property
     def open(self):
         return self._open
     
+    @open.setter
     def open(self, price : float):
         self._open = price
     
@@ -98,10 +103,12 @@ class ArbTrade:
         elif self._trade == 'short':
             action = 'BUY'
         
+        print('Closing Trade:', self._stock.contract.symbol, self._qty)
         order = ib.MarketOrder(action, self._qty)
         trade = self._api.placeOrder(self._stock.contract, order)
         trade.filledEvent += self._close_order_status
         self._active = True
+        
         # self._api.sleep(60)
         # if trade.orderStatus.status != 'Filled':
         #     raise "Order closing error!"
@@ -120,6 +127,8 @@ class ArbTrade:
             return None
     
     def profit(self):
+        if self.stock._last is None:
+            return None
         if self.isclosed:
             if self.trade == 'long':
                 return (self._close - self._open) * self.qty

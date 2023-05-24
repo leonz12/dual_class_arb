@@ -66,7 +66,7 @@ class Stock:
         
     def bar_update(self, bars : ib.BarDataList, hasNewBar : bool):
         if self.open is None:
-            self.open = bars[-2].open
+            self.open = bars[-1].open
         else:
             self.last = bars[-1].close
     

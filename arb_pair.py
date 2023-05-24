@@ -1,6 +1,7 @@
 import ib_insync as ib
 from stock import Stock
 from arb_trade import ArbTrade
+import sys
 
 
 
@@ -89,21 +90,24 @@ class ArbPair:
         for i in positions:
             if self.stock1.contract == i.contract:
                 if i.position > 0:
-                    self._long = ArbTrade(self.api, self.stock1, 'long', i.position)
-                    self._long.open(i.avgCost)
+                    self._long = ArbTrade(self.api, self.stock1, 'long', abs(i.position))
+                    self._long.open = i.avgCost
                 else:
-                    self._short = ArbTrade(self.api, self.stock1, 'long', i.position)
-                    self._short.open(i.avgCost)
+                    self._short = ArbTrade(self.api, self.stock1, 'short', abs(i.position))
+                    self._short.open = i.avgCost
             elif self.stock2.contract == i.contract:
                 if i.position > 0:
-                    self._long = ArbTrade(self.api, self.stock2, 'long', i.position)
-                    self._long.open(i.avgCost)
+                    self._long = ArbTrade(self.api, self.stock2, 'long', abs(i.position))
+                    self._long.open = i.avgCost
                 else:
-                    self._short = ArbTrade(self.api, self.stock2, 'long', i.position)
-                    self._short.open(i.avgCost)
+                    self._short = ArbTrade(self.api, self.stock2, 'short', abs(i.position))
+                    self._short.open = i.avgCost
 
         if self._long == None and self._short == None:
             return
+        
+        print("Long:", self._long.stock.symbol, self._long.qty, self._long.open)
+        print('Short:', self._short.stock.symbol, self._short.qty, self._short.open)
         
         # Validation
         try:
@@ -111,8 +115,8 @@ class ArbPair:
                 raise ValueError('Not long/short pair')
             if self._long.stock == self.stock1 and self._short.stock == self.stock2:
                 self._direction = 'forward'
-                if self._lot != self._long.qty or self._short.qty/self._long.qty != self._ratio:
-                    raise ValueError('Quantity not correct')
+                if int(self._lot) != self._long.qty or abs(int(self._short.qty/self._long.qty)) != self._ratio:
+                    raise ValueError(f'Quantity not correct. {self._long.qty}, {self._short.qty/self._long.qty}')
             elif self._long.stock == self.stock2 and self._short.stock == self.stock1:
                 self._direction = 'reverse'
                 if self._lot != self._short.qty or self._long.qty/self._short.qty != self._ratio:
@@ -126,17 +130,26 @@ class ArbPair:
                 print("Long:", self._long.stock.symbol, self._long.qty, self._long.open)
             if self._long != None:
                 print('Short:', self._short.stock.symbol, self._short.qty, self._short.open)
+            sys.exit()
         
-        
+        self._isopen = True
+
+        print("Direction:", self._direction)
 
 
     def index(self):
         if self.stock1.has_value() and self.stock2.has_value():
-            return (self.stock2.gain() - self.stock1.gain()) / self.stock1.gain()
+            if abs(self.stock2.gain()) > abs(self.stock2.gain()):
+                return (self.stock2.gain() - self.stock1.gain()) / self.stock1.gain()
+            else:
+                return -1 * (self.stock1.gain() - self.stock2.gain()) / self.stock2.gain()
         else:
             return None
         
     def check_open(self):
+        if self.check_active():
+            return self._isopen
+        
         self._isopen = False
         if self._long != None and self._short != None:
             if self._long.isopen and not self._long.isclosed:
@@ -155,6 +168,9 @@ class ArbPair:
     def algo(self):
         if self.index() is None or self.check_active():
             return
+        
+        print('Index:', self.index(), 'Direction:', self._direction, 'Open:', self.check_open())
+        
         if self.index() < LOWER:
             if not self.check_open():
                 self._direction = 'reverse'
@@ -162,6 +178,7 @@ class ArbPair:
                 self._short.open_trade()
                 self._long = ArbTrade(self._api, self._stock2, 'long', self._lot)
                 self._long.open_trade()
+                self._isopen = True
 
         elif self.index() > UPPER:
             if not self.check_open():
@@ -170,6 +187,7 @@ class ArbPair:
                 self._long.open_trade()
                 self._short = ArbTrade(self._api, self._stock2, 'short', self._lot)
                 self._short.open_trade()
+                self._isopen = True
 
         elif self.index() < 0.02 and self._direction == 'forward':
             if self.check_open():
