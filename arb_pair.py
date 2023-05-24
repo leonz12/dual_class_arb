@@ -141,9 +141,9 @@ class ArbPair:
         if self.stock1.has_value() and self.stock2.has_value():
             i = (self.stock2.gain() - self.stock1.gain()) / self.stock1.gain()
             if self.stock1.gain() >= self.stock2.gain():
-                return abs(i)
-            else:
                 return -1 * abs(i)
+            else:
+                return abs(i)
         else:
             return None
         
