@@ -11,7 +11,7 @@ class ArbTrade:
         self._isclosed = False
         self._stock = stock
         self._trade = trade
-        self._active = False
+        self._active = True
         self._open = None
 
         if qty != 0:
